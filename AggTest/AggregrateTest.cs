@@ -21,7 +21,7 @@ namespace AggTest
             var result = await ContainerFixture.Mediator.Send(command);
 
             result.ShouldNotBeNull();
-            result.Name.ShouldBe(customerName);
+            result.Root.Name.ShouldBe(customerName);
         }
     }
 }

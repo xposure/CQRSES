@@ -7,7 +7,7 @@ namespace AggService.Customer
     using AggCommon;
     using MediatR;
 
-    public class CreateCustomer : IRequest<CustomerAggregrate>
+    public class CreateCustomer : IRequest<IAggregrate<CustomerAggregrate>>
     {
         public class CustomerAlreadyExists : Exception
         {
@@ -16,7 +16,7 @@ namespace AggService.Customer
 
         public string Name;
 
-        public class CreatedCustomer : AggregrateEvent<CustomerAggregrate>
+        public class CreatedCustomer : IEventState<CustomerAggregrate>
         {
             public readonly string Name;
 
@@ -25,13 +25,13 @@ namespace AggService.Customer
                 Name = name;
             }
 
-            protected override void OnApply(CustomerAggregrate aggregrate)
+            public void Apply(CustomerAggregrate aggregrate)
             {
                 aggregrate.Name = Name;
             }
         }
 
-        public class Handler : IRequestHandler<CreateCustomer, CustomerAggregrate>
+        public class Handler : IRequestHandler<CreateCustomer, IAggregrate<CustomerAggregrate>>
         {
             IAggregrateRepository<CustomerAggregrate> _repository;
             IAggregrateEvents<CustomerAggregrate> _events;
@@ -42,31 +42,27 @@ namespace AggService.Customer
                 _events = events;
             }
 
-            public async Task<CustomerAggregrate> Handle(CreateCustomer request, CancellationToken cancellationToken)
+            public async Task<IAggregrate<CustomerAggregrate>> Handle(CreateCustomer request, CancellationToken cancellationToken)
             {
                 var aggregrateId = Guid.NewGuid().ToString();
 
-                if (await _repository.Find(it => it.Name == request.Name).AnyAsync(cancellationToken))
+                if (await _repository.Find(it => it.Root.Name == request.Name).AnyAsync(cancellationToken))
                     throw new CustomerAlreadyExists(request.Name);
 
 
-                var customer = new CustomerAggregrate(aggregrateId);
+                var customer = new CustomerAggregrate();
                 if (customer == null)
                     throw new InvalidOperationException();
 
-                var aggregrate = new CustomerAggregrate(aggregrateId);
+                customer = new CustomerAggregrate();
+                var aggregate = await _repository.AddAsync(customer);
 
-                var ev = new CreatedCustomer(request.Name);
+                var eventData = new CreatedCustomer(request.Name);
+                var ev = await _events.Append(aggregate, eventData);
 
-                //TODO: check if we appended to the stream
-                await _events.Append(aggregrateId, ev);
+                aggregate.Apply(ev);
 
-                ev.Apply(aggregrate);
-
-                //snapshotting ?
-                await _repository.AddAsync(aggregrate);
-
-                return aggregrate;
+                return aggregate;
             }
         }
     }

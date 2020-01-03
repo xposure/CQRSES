@@ -5,16 +5,14 @@ namespace AggCommon
         string AggregrateId { get; }
 
         long EventIndex { get; }
+
     }
 
-    public class Aggregrate : IAggregrate
+    public interface IAggregrate<T> : IAggregrate
     {
-        public string AggregrateId { get; }
-        public long EventIndex { get; internal set; }
+        T Root { get; }
 
-        protected Aggregrate(string aggregrateId)
-        {
-            AggregrateId = aggregrateId;
-        }
+        void Apply(IAggregrateEvent<T> ev);
     }
+
 }

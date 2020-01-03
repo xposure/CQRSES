@@ -6,13 +6,14 @@ namespace AggCommon
     using System.Threading.Tasks;
 
     public interface IAggregrateRepository<TEntity>
-       where TEntity : IAggregrate
+    //where TEntity : IAggregrate
     {
         //string CollectionName { get; }
 
-        Task AddAsync(TEntity entity);
-        Task ReplaceAsync(TEntity entity);
-        Task DeleteAsync(TEntity entity);
-        IAsyncEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> filter);
+        Task<IAggregrate<TEntity>> AddAsync(TEntity entity);
+
+        Task ReplaceAsync(IAggregrate<TEntity> entity);
+        Task DeleteAsync(IAggregrate<TEntity> entity);
+        IAsyncEnumerable<IAggregrate<TEntity>> Find(Expression<Func<IAggregrate<TEntity>, bool>> filter);
     }
 }

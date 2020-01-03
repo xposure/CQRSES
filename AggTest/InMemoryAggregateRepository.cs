@@ -8,24 +8,26 @@ namespace AggTest
     using AggCommon;
 
     public class InMemoryAggregrateRepository<TEntity> : IAggregrateRepository<TEntity>
-         where TEntity : IAggregrate
+    //where TEntity : Aggregrate<TEntity>
     {
-        public string CollectionName { get; }
 
-        private List<TEntity> _entities = new List<TEntity>();
+        //public string CollectionName { get; }
 
-        public InMemoryAggregrateRepository()
+        private List<IAggregrate<TEntity>> _entities = new List<IAggregrate<TEntity>>();
+
+        // public InMemoryAggregrateRepository()
+        // {
+        //     CollectionName = typeof(TEntity).Name;
+        // }
+
+        public Task<IAggregrate<TEntity>> AddAsync(TEntity entity)
         {
-            CollectionName = typeof(TEntity).Name;
+            var aggregate = new Aggregrate<TEntity>(Guid.NewGuid().ToString(), entity);
+            _entities.Add(aggregate);
+            return Task.FromResult<IAggregrate<TEntity>>(aggregate);
         }
 
-        public Task AddAsync(TEntity entity)
-        {
-            _entities.Add(entity);
-            return Task.CompletedTask;
-        }
-
-        public Task DeleteAsync(TEntity entity)
+        public Task DeleteAsync(IAggregrate<TEntity> entity)
         {
             var index = _entities.FindIndex(it => it.AggregrateId == entity.AggregrateId);
             if (index == -1)
@@ -35,7 +37,7 @@ namespace AggTest
             return Task.CompletedTask;
         }
 
-        public async IAsyncEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> filter)
+        public async IAsyncEnumerable<IAggregrate<TEntity>> Find(Expression<Func<IAggregrate<TEntity>, bool>> filter)
         {
             var entities = _entities.AsQueryable().Where(filter);
             foreach (var entity in entities)
@@ -44,7 +46,7 @@ namespace AggTest
             await Task.CompletedTask;
         }
 
-        public Task ReplaceAsync(TEntity entity)
+        public Task ReplaceAsync(IAggregrate<TEntity> entity)
         {
             var index = _entities.FindIndex(it => it.AggregrateId == entity.AggregrateId);
             if (index == -1)
