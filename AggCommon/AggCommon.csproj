@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <!-- <PropertyGroup>
+    <PackageReference Include="MongoDB.Driver" Version="2.10.0" />
+  </PropertyGroup> -->
+</Project>
