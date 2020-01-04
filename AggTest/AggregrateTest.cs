@@ -6,6 +6,7 @@ namespace AggTest
     using AggService.Customer;
     using System.Threading.Tasks;
     using AggService;
+    using MediatR;
 
     public class AggregrateTest
     {
@@ -15,13 +16,28 @@ namespace AggTest
         {
             var customerName = "John Doe";
 
-            var mediator = ContainerFixture.Mediator;
+            using var container = ContainerFixture.Container;
+            var mediator = container.GetInstance<Mediator>(); ;
             var command = new CreateCustomer() { Name = customerName };
 
-            var result = await ContainerFixture.Mediator.Send(command);
+            var result = await mediator.Send(command);
 
             result.ShouldNotBeNull();
             result.Root.Name.ShouldBe(customerName);
+        }
+
+        [Fact]
+        public async void ShouldThrowDuplicateCustomer()
+        {
+            var customerName = "John Doe";
+
+            using var container = ContainerFixture.Container;
+            var mediator = container.GetInstance<Mediator>(); ;
+            var command = new CreateCustomer() { Name = customerName };
+
+            var result = await mediator.Send(command);
+
+            Should.Throw<CreateCustomer.CustomerAlreadyExists>(async () => await mediator.Send(command));
         }
     }
 }

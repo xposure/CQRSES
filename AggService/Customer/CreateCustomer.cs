@@ -6,6 +6,7 @@ namespace AggService.Customer
     using System.Threading.Tasks;
     using AggCommon;
     using MediatR;
+    using MediatR.Pipeline;
 
     public class CreateCustomer : IRequest<IAggregrate<CustomerAggregrate>>
     {
@@ -48,7 +49,6 @@ namespace AggService.Customer
 
                 if (await _repository.Find(it => it.Root.Name == request.Name).AnyAsync(cancellationToken))
                     throw new CustomerAlreadyExists(request.Name);
-
 
                 var customer = new CustomerAggregrate();
                 if (customer == null)

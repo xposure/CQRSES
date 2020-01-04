@@ -7,12 +7,13 @@ namespace AggTest
 
     public class ContainerFixture
     {
-        public readonly static Container Container;
+        public static IContainer Container => _container.GetNestedContainer();
+        public readonly static Container _container;
 
-        public readonly static Mediator Mediator;
+        //public readonly static Mediator Mediator;
         static ContainerFixture()
         {
-            Container = new Container(cfg =>
+            _container = new Container(cfg =>
             {
                 cfg.Scan(scanner =>
                 {
@@ -27,7 +28,7 @@ namespace AggTest
                 cfg.For<IMediator>().Use<Mediator>();
             });
 
-            Mediator = Container.GetInstance<Mediator>();
+            //Mediator = Container.GetInstance<Mediator>();
         }
     }
 }
