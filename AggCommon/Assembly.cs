@@ -1,1 +1,1 @@
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("AggTest")]
+//[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("AggTest")]
