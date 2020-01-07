@@ -1,6 +1,7 @@
 namespace AggTest
 {
     using AggCommon;
+    using AggRepo;
     using AggService.Customer;
     using MediatR;
     using StructureMap;

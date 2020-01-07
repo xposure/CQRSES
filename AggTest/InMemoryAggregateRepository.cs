@@ -6,6 +6,7 @@ namespace AggTest
     using System.Linq.Expressions;
     using System.Threading.Tasks;
     using AggCommon;
+    using AggRepo;
 
     public class InMemoryAggregrateRepository<TEntity> : IAggregrateRepository<TEntity>
     //where TEntity : Aggregrate<TEntity>

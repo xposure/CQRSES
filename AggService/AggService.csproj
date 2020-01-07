@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AggCommon\AggCommon.csproj" />
+    <ProjectReference Include="..\AggRepo\AggRepo.csproj" />
   </ItemGroup>
 
   <ItemGroup>

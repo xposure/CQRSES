@@ -5,6 +5,7 @@ namespace AggService.Customer
     using System.Threading;
     using System.Threading.Tasks;
     using AggCommon;
+    using AggRepo;
     using MediatR;
 
     public class CreateCustomer : IRequest<IAggregrate<CustomerAggregrate>>
