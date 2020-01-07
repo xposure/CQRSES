@@ -13,12 +13,12 @@ namespace AggCommon
     }
 
 
-    public interface IAggregrateEvent
+    public interface IAggregateEvent
     {
         string Id { get; }
         long Index { get; }
 
-        void Apply();
+        //void Apply();
     }
 
     // public interface IAggregrateEvent<TData> : IAggregrateEvent
@@ -27,10 +27,11 @@ namespace AggCommon
     //     //void Apply(TAggregate aggregreate);
     // }
 
-    public interface IAggregrateEvent<TAggregate, TData> : IAggregrateEvent
+    public interface IAggregateEvent<TAggregate, TData> : IAggregateEvent
         //where TAggregate : IAggregrate
         where TData : IEventState<TAggregate>
     {
         TData Data { get; }
+        void Apply(TAggregate aggregreate);
     }
 }

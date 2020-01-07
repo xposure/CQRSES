@@ -3,17 +3,17 @@ namespace AggTest
     using System;
     using AggCommon;
 
-    public class Aggregrate<T> : IAggregrate<T>
+    public class Aggregrate<T> : IAggregate<T>
     //where T : IAggregrateEvent<T>
     {
-        public string AggregrateId { get; internal set; }
+        public string AggregateId { get; internal set; }
         public long EventIndex { get; internal set; }
 
         public T Root { get; }
 
         public Aggregrate(string aggregrateId, T root)
         {
-            AggregrateId = aggregrateId;
+            AggregateId = aggregrateId;
             Root = root;
         }
 

@@ -1,14 +1,14 @@
 namespace AggCommon
 {
-    public interface IAggregrate
+    public interface IAggregate
     {
-        string AggregrateId { get; }
+        string AggregateId { get; }
 
         long EventIndex { get; }
 
     }
 
-    public interface IAggregrate<T> : IAggregrate
+    public interface IAggregate<T> : IAggregate
     {
         T Root { get; }
 

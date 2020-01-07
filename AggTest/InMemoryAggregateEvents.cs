@@ -4,37 +4,46 @@ namespace AggTest
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AggCommon;
+    using MediatR;
 
-    public class InMemoryAggregrateEvents<T> : IAggregrateEvents<T>
-    //where T : IAggregrate<T>
+    public class InMemoryAggregrateEvents<T> : IAggregateStream<T>
+            //where T : IAggregrate<T>
+            where T : new()
     {
-        public readonly Dictionary<string, List<IAggregrateEvent>> Events = new Dictionary<string, List<IAggregrateEvent>>();
-
-        public Task<IAggregrateEvent<T, TEvent>> Append<TEvent>(IAggregrate<T> aggregrate, TEvent eventData)
-            where TEvent : IEventState<T>
+        public readonly Dictionary<string, List<IAggregateEvent>> Events = new Dictionary<string, List<IAggregateEvent>>();
+        private IMediator _mediator;
+        public InMemoryAggregrateEvents(IMediator mediator)
         {
-            if (!Events.TryGetValue(aggregrate.AggregrateId, out var eventList))
-            {
-                eventList = new List<IAggregrateEvent>();
-                Events.Add(aggregrate.AggregrateId, eventList);
-            }
-
-            var ev = new AggregrateEvent<T, TEvent>(aggregrate, Guid.NewGuid().ToString(), eventList.Count, eventData);
-            eventList.Add(ev);
-            return Task.FromResult<IAggregrateEvent<T, TEvent>>(ev);
+            _mediator = mediator;
         }
 
-        // public Task<IAggregrateEvent<TEvent>> Append2<TEvent>(IAggregrate<T> aggregrate, TEvent eventData) where TEvent : IEventState<T>
-        // {
-        //     if (!Events.TryGetValue(aggregrate.AggregrateId, out var eventList))
-        //     {
-        //         eventList = new List<IAggregrateEvent<T>>();
-        //         Events.Add(aggregrate.AggregrateId, eventList);
-        //     }
+        public Task<IAggregateEvent<T, TEvent>> Append<TEvent>(IAggregate<T> aggregate, TEvent eventData)
+            where TEvent : IEventState<T>
+        {
+            if (!Events.TryGetValue(aggregate.AggregateId, out var eventList))
+            {
+                eventList = new List<IAggregateEvent>();
+                Events.Add(aggregate.AggregateId, eventList);
+            }
 
-        //     var ev = new AggregrateEvent<T, TEvent>(aggregrate, Guid.NewGuid().ToString(), eventList.Count, eventData);
-        //     eventList.Add(ev);
-        //     return Task.FromResult<IAggregrateEvent<T>>(ev);
-        // }
+            var ev = new AggregateEvent<T, TEvent>(aggregate, Guid.NewGuid().ToString(), eventList.Count, eventData);
+            eventList.Add(ev);
+            return Task.FromResult<IAggregateEvent<T, TEvent>>(ev);
+        }
+
+        public Task<IAggregate<T>> Read(string aggregateId)
+        {
+            if (!Events.TryGetValue(aggregateId, out var eventList))
+                throw new AggregateNotFound(aggregateId);
+
+            var agg = new Aggregrate<T>(aggregateId, new T());
+
+
+
+            //     var ev = new AggregateEvent<T, TEvent>(aggregrate, Guid.NewGuid().ToString(), eventList.Count, eventData);
+            // eventList.Add(ev);
+            // return Task.FromResult<IAggregateEvent<T, TEvent>>(ev);
+            // throw new NotImplementedException();
+        }
     }
 }

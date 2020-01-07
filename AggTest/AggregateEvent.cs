@@ -30,7 +30,7 @@ namespace AggTest
     //     }
     // }
 
-    public class AggregrateEvent<TEntity, TData> : IAggregrateEvent<TEntity, TData>
+    public class AggregateEvent<TEntity, TData> : IAggregateEvent<TEntity, TData>
         //where TEntity : IAggregrate<TEntity>
         where TData : IEventState<TEntity>
     {
@@ -38,25 +38,25 @@ namespace AggTest
         public long Index { get; }
         public TData Data { get; }
 
-        public IAggregrate<TEntity> Entity { get; }
+        //public IAggregate<TEntity> Entity { get; }
 
-        public AggregrateEvent(IAggregrate<TEntity> entity, string id, long index, TData data)
+        public AggregateEvent(string id, long index, TData data)
         {
-            Entity = entity;
+            //Entity = entity;
             Id = id;
             Index = index;
             Data = data;
         }
 
-        public void Apply()
-        {
-            Data.Apply(Entity.Root);
-            //Entity.Apply(this);
-        }
-
-        //public void Apply(TEntity aggregrate)
+        // public void Apply()
         // {
-        //     Data.Apply(aggregrate);
+        //     Data.Apply(Entity.Root);
+        //     //Entity.Apply(this);
         // }
+
+        public void Apply(TEntity aggregrate)
+        {
+            Data.Apply(aggregrate);
+        }
     }
 }

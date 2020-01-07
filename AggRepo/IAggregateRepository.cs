@@ -11,10 +11,10 @@ namespace AggRepo
     {
         //string CollectionName { get; }
 
-        Task<IAggregrate<TEntity>> AddAsync(TEntity entity);
+        Task<IAggregate<TEntity>> AddAsync(TEntity entity);
 
-        Task ReplaceAsync(IAggregrate<TEntity> entity);
-        Task DeleteAsync(IAggregrate<TEntity> entity);
-        IAsyncEnumerable<IAggregrate<TEntity>> Find(Expression<Func<IAggregrate<TEntity>, bool>> filter);
+        Task ReplaceAsync(IAggregate<TEntity> entity);
+        Task DeleteAsync(IAggregate<TEntity> entity);
+        IAsyncEnumerable<IAggregate<TEntity>> Find(Expression<Func<IAggregate<TEntity>, bool>> filter);
     }
 }

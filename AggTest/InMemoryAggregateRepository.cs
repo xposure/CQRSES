@@ -14,31 +14,31 @@ namespace AggTest
 
         //public string CollectionName { get; }
 
-        private List<IAggregrate<TEntity>> _entities = new List<IAggregrate<TEntity>>();
+        private List<IAggregate<TEntity>> _entities = new List<IAggregate<TEntity>>();
 
         // public InMemoryAggregrateRepository()
         // {
         //     CollectionName = typeof(TEntity).Name;
         // }
 
-        public Task<IAggregrate<TEntity>> AddAsync(TEntity entity)
+        public Task<IAggregate<TEntity>> AddAsync(TEntity entity)
         {
             var aggregate = new Aggregrate<TEntity>(Guid.NewGuid().ToString(), entity);
             _entities.Add(aggregate);
-            return Task.FromResult<IAggregrate<TEntity>>(aggregate);
+            return Task.FromResult<IAggregate<TEntity>>(aggregate);
         }
 
-        public Task DeleteAsync(IAggregrate<TEntity> entity)
+        public Task DeleteAsync(IAggregate<TEntity> entity)
         {
-            var index = _entities.FindIndex(it => it.AggregrateId == entity.AggregrateId);
+            var index = _entities.FindIndex(it => it.AggregateId == entity.AggregateId);
             if (index == -1)
-                throw new AggregrateNotFound(entity.AggregrateId);
+                throw new AggregateNotFound(entity.AggregateId);
 
             _entities.RemoveAt(index);
             return Task.CompletedTask;
         }
 
-        public async IAsyncEnumerable<IAggregrate<TEntity>> Find(Expression<Func<IAggregrate<TEntity>, bool>> filter)
+        public async IAsyncEnumerable<IAggregate<TEntity>> Find(Expression<Func<IAggregate<TEntity>, bool>> filter)
         {
             var entities = _entities.AsQueryable().Where(filter);
             foreach (var entity in entities)
@@ -47,11 +47,11 @@ namespace AggTest
             await Task.CompletedTask;
         }
 
-        public Task ReplaceAsync(IAggregrate<TEntity> entity)
+        public Task ReplaceAsync(IAggregate<TEntity> entity)
         {
-            var index = _entities.FindIndex(it => it.AggregrateId == entity.AggregrateId);
+            var index = _entities.FindIndex(it => it.AggregateId == entity.AggregateId);
             if (index == -1)
-                throw new AggregrateNotFound(entity.AggregrateId);
+                throw new AggregateNotFound(entity.AggregateId);
 
             _entities[index] = entity;
             return Task.CompletedTask;

@@ -23,7 +23,7 @@ namespace AggTest
                     scanner.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
                 });
 
-                cfg.For(typeof(IAggregrateEvents<>)).Use(typeof(InMemoryAggregrateEvents<>));
+                cfg.For(typeof(IAggregateStream<>)).Use(typeof(InMemoryAggregrateEvents<>));
                 cfg.For(typeof(IAggregrateRepository<>)).Use(typeof(InMemoryAggregrateRepository<>));
                 cfg.For<ServiceFactory>().Use<ServiceFactory>(ctx => ctx.GetInstance);
                 cfg.For<IMediator>().Use<Mediator>();

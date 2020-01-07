@@ -2,16 +2,21 @@ namespace AggCommon
 {
     using System.Threading.Tasks;
 
-    public interface IAggregrateEvents
+    //I want to move all the event append logic to the IAggragate instead
+
+    public interface IAggregateStream
     {
         // Task<IAggregrateEvent> Append2<TAggregate, TEvent>(IAggregrate<TAggregate> aggregrate, TEvent eventData)
         //     where TEvent : IEventState;
 
     }
-    public interface IAggregrateEvents<T> : IAggregrateEvents
+    public interface IAggregateStream<T> : IAggregateStream
+        where T : new()
     {
-        Task<IAggregrateEvent<T, TEvent>> Append<TEvent>(IAggregrate<T> aggregrate, TEvent eventData)
+        Task<IAggregateEvent<T, TEvent>> Append<TEvent>(IAggregate<T> aggregate, TEvent eventData)
             where TEvent : IEventState<T>;
+
+        Task<IAggregate<T>> Read(string aggregateId);
     }
 
     // public interface IAggregrateEvents

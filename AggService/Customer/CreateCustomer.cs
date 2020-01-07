@@ -8,7 +8,7 @@ namespace AggService.Customer
     using AggRepo;
     using MediatR;
 
-    public class CreateCustomer : IRequest<IAggregrate<CustomerAggregrate>>
+    public class CreateCustomer : IRequest<IAggregate<CustomerAggregrate>>
     {
         public class CustomerAlreadyExists : Exception
         {
@@ -32,18 +32,18 @@ namespace AggService.Customer
             }
         }
 
-        public class Handler : IRequestHandler<CreateCustomer, IAggregrate<CustomerAggregrate>>
+        public class Handler : IRequestHandler<CreateCustomer, IAggregate<CustomerAggregrate>>
         {
             IAggregrateRepository<CustomerAggregrate> _repository;
-            IAggregrateEvents<CustomerAggregrate> _events;
+            IAggregateStream<CustomerAggregrate> _events;
 
-            public Handler(IAggregrateRepository<CustomerAggregrate> customers, IAggregrateEvents<CustomerAggregrate> events)
+            public Handler(IAggregrateRepository<CustomerAggregrate> customers, IAggregateStream<CustomerAggregrate> events)
             {
                 _repository = customers;
                 _events = events;
             }
 
-            public async Task<IAggregrate<CustomerAggregrate>> Handle(CreateCustomer request, CancellationToken cancellationToken)
+            public async Task<IAggregate<CustomerAggregrate>> Handle(CreateCustomer request, CancellationToken cancellationToken)
             {
                 var aggregrateId = Guid.NewGuid().ToString();
 

@@ -2,8 +2,8 @@ namespace AggCommon
 {
     using System;
 
-    public class AggregrateNotFound : Exception
+    public class AggregateNotFound : Exception
     {
-        public AggregrateNotFound(string id) : base($"Aggregrate [{id}] not found.") { }
+        public AggregateNotFound(string id) : base($"Aggregate [{id}] not found.") { }
     }
 }
