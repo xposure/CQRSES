@@ -17,17 +17,17 @@ namespace AggTest
             Root = root;
         }
 
-        public void Apply(IAggregrateEvent<T> ev)
-        {
-            if (ev.Index == -1)
-                throw new InvalidOperationException("Event was not properly initialized.\nIndex can not be -1.");
+        // public void Apply(IAggregrateEvent<T> ev)
+        // {
+        //     if (ev.Index == -1)
+        //         throw new InvalidOperationException("Event was not properly initialized.\nIndex can not be -1.");
 
-            if (string.IsNullOrEmpty(ev.Id))
-                throw new InvalidOperationException("Event was not properly initialized.\nId can not be null.");
+        //     if (string.IsNullOrEmpty(ev.Id))
+        //         throw new InvalidOperationException("Event was not properly initialized.\nId can not be null.");
 
-            ev.Apply(Root);
-            //Data.Apply(aggregrate.Root);
-            EventIndex = ev.Index;
-        }
+        //     ev.Apply(Root);
+        //     //Data.Apply(aggregrate.Root);
+        //     EventIndex = ev.Index;
+        // }
     }
 }

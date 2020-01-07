@@ -12,7 +12,7 @@ namespace AggCommon
     {
         T Root { get; }
 
-        void Apply(IAggregrateEvent<T> ev);
+        //void Apply(IAggregrateEvent<T> ev);
     }
 
 }

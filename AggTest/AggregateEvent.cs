@@ -38,16 +38,25 @@ namespace AggTest
         public long Index { get; }
         public TData Data { get; }
 
-        public AggregrateEvent(string id, long index, TData data)
+        public IAggregrate<TEntity> Entity { get; }
+
+        public AggregrateEvent(IAggregrate<TEntity> entity, string id, long index, TData data)
         {
+            Entity = entity;
             Id = id;
             Index = index;
             Data = data;
         }
 
-        public void Apply(TEntity aggregrate)
+        public void Apply()
         {
-            Data.Apply(aggregrate);
+            Data.Apply(Entity.Root);
+            //Entity.Apply(this);
         }
+
+        //public void Apply(TEntity aggregrate)
+        // {
+        //     Data.Apply(aggregrate);
+        // }
     }
 }

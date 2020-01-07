@@ -6,7 +6,6 @@ namespace AggService.Customer
     using System.Threading.Tasks;
     using AggCommon;
     using MediatR;
-    using MediatR.Pipeline;
 
     public class CreateCustomer : IRequest<IAggregrate<CustomerAggregrate>>
     {
@@ -60,7 +59,8 @@ namespace AggService.Customer
                 var eventData = new CreatedCustomer(request.Name);
                 var ev = await _events.Append(aggregate, eventData);
 
-                aggregate.Apply(ev);
+                ev.Apply();
+                //aggregate.Apply(ev);
 
                 return aggregate;
             }

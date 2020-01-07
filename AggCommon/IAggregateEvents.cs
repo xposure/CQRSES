@@ -2,10 +2,16 @@ namespace AggCommon
 {
     using System.Threading.Tasks;
 
-    public interface IAggregrateEvents<T>
-    //where T : IAggregrate<T>
+    public interface IAggregrateEvents
     {
-        Task<IAggregrateEvent<T>> Append<TEvent>(IAggregrate<T> aggregrate, TEvent eventData) where TEvent : IEventState<T>;
+        // Task<IAggregrateEvent> Append2<TAggregate, TEvent>(IAggregrate<TAggregate> aggregrate, TEvent eventData)
+        //     where TEvent : IEventState;
+
+    }
+    public interface IAggregrateEvents<T> : IAggregrateEvents
+    {
+        Task<IAggregrateEvent<T, TEvent>> Append<TEvent>(IAggregrate<T> aggregrate, TEvent eventData)
+            where TEvent : IEventState<T>;
     }
 
     // public interface IAggregrateEvents
