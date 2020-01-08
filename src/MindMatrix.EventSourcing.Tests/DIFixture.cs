@@ -7,29 +7,6 @@ namespace MindMatrix.EventSourcing
     using StructureMap.Building;
     using StructureMap.Pipeline;
 
-    public class AggregateEventInstanceFactory : Instance
-    {
-        public override string Description => "Creates strongly typed AggregateEvents.";
-
-        public override Type ReturnedType => typeof(AggregateEvent<,>);
-
-        public override IDependencySource ToDependencySource(Type pluginType)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override Instance CloseType(Type[] types)
-        {
-            // StructureMap will cache the object built out of this,
-            // so the expensive Reflection hit only happens
-            // once
-
-            var instanceType = typeof(AggregateEvent<,>).MakeGenericType(types);
-            return new ObjectInstance(Activator.CreateInstance(instanceType)).Named(types[1].FullName);
-            //return ;//.As<Instance>();
-        }
-    }
-
     public class DIFixture
     {
         public static IContainer Scope() => _container.GetNestedContainer();

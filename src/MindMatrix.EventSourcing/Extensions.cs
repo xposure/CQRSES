@@ -1,6 +1,7 @@
 namespace MindMatrix.EventSourcing
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using EventStore.ClientAPI;
     using EventStore.ClientAPI.SystemData;
 
@@ -19,6 +20,15 @@ namespace MindMatrix.EventSourcing
                 else
                     start = stream.NextEventNumber;
             }
+        }
+
+        public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> data)
+        {
+            var list = new List<T>();
+            await foreach (var it in data)
+                list.Add(it);
+
+            return list;
         }
     }
 }

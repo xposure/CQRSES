@@ -6,6 +6,7 @@ namespace MindMatrix.EventSourcing
     using EventStore.ClientAPI;
     using System.Threading.Tasks;
     using StructureMap;
+    using System.Collections.Generic;
 
     public interface IEventStreamFactory<TAggregate>
     {
@@ -26,60 +27,30 @@ namespace MindMatrix.EventSourcing
         }
     }
 
-
-    public interface IAggregateEventFactory<TAggregate>
-    {
-        IAggregateEvent<TAggregate> Create<TData>() where TData : new();
-    }
-
-    public class AggregateEventFactory<TAggregate> : IAggregateEventFactory<TAggregate>
-    {
-        public IAggregateEvent<TAggregate> Create<TData>()
-            where TData : new()
-        {
-            return new AggregateEvent<TAggregate, TData>();
-        }
-    }
-
-    public interface IAggregateEventFactory<TAggregate, TData>
-        where TData : new()
-    {
-        IAggregateEvent<TAggregate> Create();
-    }
-
-    public class AggregateEventFactory<TAggregate, TData> : IAggregateEventFactory<TAggregate, TData>
-        where TData : new()
-    {
-        public IAggregateEvent<TAggregate> Create()
-        {
-            return new AggregateEvent<TAggregate, TData>();
-        }
-    }
-
-
     public interface IAggregateEvent<TAggregate> : IEvent<TAggregate>
     {
         string Id { get; }
-        long Index { get; }
+        long Version { get; }
 
+        IEvent<TAggregate> Data { get; }
     }
 
-    public interface IAggregateEvent<TAggregate, TData> : IAggregateEvent<TAggregate>
+    public class AggregateEvent<TAggregate> : IAggregateEvent<TAggregate>
     {
-        TData Data { get; }
-    }
+        public string Id { get; }
+        public long Version { get; }
+        public IEvent<TAggregate> Data { get; }
 
-    public class AggregateEvent<TAggregate, TData> : IAggregateEvent<TAggregate, TData>
-    {
-        public string Id => throw new NotImplementedException();
-
-        public long Index => throw new NotImplementedException();
-
-        public TData Data => throw new NotImplementedException();
+        public AggregateEvent(string id, long version, IEvent<TAggregate> data)
+        {
+            Id = id;
+            Version = version;
+            Data = data;
+        }
 
         public void Apply(TAggregate aggregate)
         {
-            throw new NotImplementedException();
+            Data.Apply(aggregate);
         }
     }
 
@@ -90,35 +61,12 @@ namespace MindMatrix.EventSourcing
 
     }
 
-    // public class Event<TAggregate> : IEvent<TAggregate>
-    // {
-
-    // }
-
-    public interface IEventFactory<TAggregate>
-    {
-        IEvent<TAggregate> Create(string type);
-    }
-
-    public class EventFactory<TAggregate> : IEventFactory<TAggregate>
-    {
-        private readonly IContainer _container;
-        public EventFactory(IContainer container)
-        {
-            _container = container;
-        }
-
-        public IEvent<TAggregate> Create(string type)
-        {
-            return _container.GetInstance<IEvent<TAggregate>>(type);
-        }
-    }
-
     public interface IEventStream<TAggregate>
     {
         long Version { get; }
 
         Task Append<TEvent>(TEvent data);
+        IAsyncEnumerable<IAggregateEvent<TAggregate>> Read(int start = 0);
     }
 
 
@@ -143,6 +91,17 @@ namespace MindMatrix.EventSourcing
             var result = await _eventStore.AppendToStreamAsync(_aggregateId, _version, new EventData(Guid.NewGuid(), data.GetType().FullName, true, bytes, null));
             _version = result.NextExpectedVersion;
         }
+
+        public async IAsyncEnumerable<IAggregateEvent<TAggregate>> Read(int start = 0)
+        {
+            await foreach (var it in _eventStore.ReadEventsAsync(_aggregateId, start))
+            {
+                var type = Type.GetType(it.Event.EventType);
+                var obj = (IEvent<TAggregate>)Json.ParseJson(it.Event.Data, type);
+
+                yield return new AggregateEvent<TAggregate>(it.Event.EventId.ToString(), it.Event.EventNumber, obj);
+            }
+        }
     }
 
     public class Dummy
@@ -152,6 +111,7 @@ namespace MindMatrix.EventSourcing
 
     public class DummyEvent : IEvent<Dummy>
     {
+        public string Name { get; set; }
         public void Apply(Dummy aggregate)
         {
             throw new NotImplementedException();
@@ -161,13 +121,38 @@ namespace MindMatrix.EventSourcing
     public class EventStreamTests
     {
         [Fact]
-        public async void HelloWorld()
+        public async void CanAppendToStream()
         {
             using var di = DIFixture.Scope();
             var factory = di.GetInstance<IEventStreamFactory<Dummy>>();
             var stream = factory.Create(Guid.NewGuid().ToString());
 
-            await stream.Append(new DummyEvent());
+            await stream.Append(new DummyEvent() { Name = "Hello World" });
+
+            //stream.Read
+
+            stream.Version.ShouldBe(0);
+        }
+
+        [Fact]
+        public async void CanReadFromStream()
+        {
+            var aggregateId = Guid.NewGuid().ToString();
+            using var di = DIFixture.Scope();
+            var factory = di.GetInstance<IEventStreamFactory<Dummy>>();
+            var stream = factory.Create(aggregateId);
+
+            await stream.Append(new DummyEvent() { Name = "Hello World" });
+
+            var stream2 = factory.Create(aggregateId);
+            var result = await stream2.Read().ToListAsync();
+
+            result.Count.ShouldBe(1);
+            result[0].ShouldBeOfType<AggregateEvent<Dummy>>().Version.ShouldBe(0);
+            result[0].Data.ShouldBeOfType<DummyEvent>().Name.ShouldBe("Hello World");
+
+
+            //stream.Read
 
             stream.Version.ShouldBe(0);
         }
