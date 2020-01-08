@@ -5,7 +5,6 @@ namespace MindMatrix.EventSourcing
     using System;
     using EventStore.ClientAPI;
     using System.Threading.Tasks;
-    using StructureMap;
     using System.Collections.Generic;
 
     public interface IEventStreamFactory<TAggregate>
@@ -32,16 +31,42 @@ namespace MindMatrix.EventSourcing
         string Id { get; }
         long Version { get; }
 
-        IEvent<TAggregate> Data { get; }
+        //IEvent<TAggregate> Data { get; }
     }
 
-    public class AggregateEvent<TAggregate> : IAggregateEvent<TAggregate>
+    public interface IAggregateEvent<TAggregate, TData> : IAggregateEvent<TAggregate>
+        where TData : IEvent<TAggregate>
+    {
+        TData Data { get; }
+    }
+
+    public class AggregateEvent<TAggregate> : IAggregateEvent<TAggregate, IEvent<TAggregate>>
     {
         public string Id { get; }
         public long Version { get; }
         public IEvent<TAggregate> Data { get; }
 
         public AggregateEvent(string id, long version, IEvent<TAggregate> data)
+        {
+            Id = id;
+            Version = version;
+            Data = data;
+        }
+
+        public void Apply(TAggregate aggregate)
+        {
+            Data.Apply(aggregate);
+        }
+    }
+
+    public class AggregateEvent<TAggregate, TEvent> : IAggregateEvent<TAggregate, TEvent>
+        where TEvent : IEvent<TAggregate>
+    {
+        public string Id { get; }
+        public long Version { get; }
+        public TEvent Data { get; }
+
+        public AggregateEvent(string id, long version, TEvent data)
         {
             Id = id;
             Version = version;
@@ -65,7 +90,8 @@ namespace MindMatrix.EventSourcing
     {
         long Version { get; }
 
-        Task Append<TEvent>(TEvent data);
+
+        Task<IAggregateEvent<TAggregate, TEvent>> Append<TEvent>(TEvent data) where TEvent : IEvent<TAggregate>;
         IAsyncEnumerable<IAggregateEvent<TAggregate>> Read(int start = 0);
     }
 
@@ -85,11 +111,17 @@ namespace MindMatrix.EventSourcing
             _aggregateId = aggregateId;
         }
 
-        public async Task Append<TEvent>(TEvent data)
+        public async Task<IAggregateEvent<TAggregate, TEvent>> Append<TEvent>(TEvent data)
+            where TEvent : IEvent<TAggregate>
         {
+            var eid = Guid.NewGuid().ToString();
+            var version = _version;
             var bytes = Json.ToJsonBytes(data);
+
             var result = await _eventStore.AppendToStreamAsync(_aggregateId, _version, new EventData(Guid.NewGuid(), data.GetType().FullName, true, bytes, null));
             _version = result.NextExpectedVersion;
+
+            return new AggregateEvent<TAggregate, TEvent>(eid, version, data);
         }
 
         public async IAsyncEnumerable<IAggregateEvent<TAggregate>> Read(int start = 0)
@@ -106,7 +138,7 @@ namespace MindMatrix.EventSourcing
 
     public class Dummy
     {
-
+        public string Name { get; internal set; }
     }
 
     public class DummyEvent : IEvent<Dummy>
@@ -114,7 +146,7 @@ namespace MindMatrix.EventSourcing
         public string Name { get; set; }
         public void Apply(Dummy aggregate)
         {
-            throw new NotImplementedException();
+            aggregate.Name = Name;
         }
     }
 
@@ -149,12 +181,27 @@ namespace MindMatrix.EventSourcing
 
             result.Count.ShouldBe(1);
             result[0].ShouldBeOfType<AggregateEvent<Dummy>>().Version.ShouldBe(0);
-            result[0].Data.ShouldBeOfType<DummyEvent>().Name.ShouldBe("Hello World");
+            //result[0].Data.ShouldBeOfType<DummyEvent>().Name.ShouldBe("Hello World");
 
 
             //stream.Read
 
             stream.Version.ShouldBe(0);
+        }
+
+        [Fact]
+        public async void ShouldThrowOptimisticConcurrencyCheck()
+        {
+            var aggregateId = Guid.NewGuid().ToString();
+            using var di = DIFixture.Scope();
+            var factory = di.GetInstance<IEventStreamFactory<Dummy>>();
+
+            var stream = factory.Create(aggregateId);
+            var stream2 = factory.Create(aggregateId);
+
+            await stream.Append(new DummyEvent() { Name = "Hello World" });
+
+            Should.Throw<Exception>(async () => await stream2.Append(new DummyEvent() { Name = "Hello World" }));
         }
     }
 }
