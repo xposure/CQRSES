@@ -54,7 +54,7 @@ namespace MindMatrix.EventSourcing
                 //cfg.For(typeof(IAggregateEventFactory<>)).Use(typeof(AggregateEventFactory<>)).Singleton();
 
                 //cfg.For<IMongoClient>().Use(new MongoClient(new MongoUrl("mongodb://localhost:27017"))).Singleton();
-                cfg.For<IEventStoreConnection>().Use(EventStoreConnection.Create(new Uri("tcp://agg:agg@localhost:1113"))).Singleton();
+                cfg.For<IEventStoreConnection>().Use(EventStoreConnection.Create(new Uri("tcp://admin:changeit@localhost:1113"))).Singleton();
 
 
                 cfg.For(typeof(IEventStreamFactory<>)).Use(typeof(EventStreamFactory<>)).Singleton();
