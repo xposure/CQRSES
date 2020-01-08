@@ -10,35 +10,37 @@ namespace AggTest
             //where T : IAggregrate<T>
             where T : new()
     {
-        public readonly Dictionary<string, List<IAggregateEvent>> Events = new Dictionary<string, List<IAggregateEvent>>();
+        public readonly Dictionary<string, List<IAggregateEvent<T>>> Events = new Dictionary<string, List<IAggregateEvent<T>>>();
         private IMediator _mediator;
         public InMemoryAggregrateEvents(IMediator mediator)
         {
             _mediator = mediator;
         }
 
-        public Task<IAggregateEvent<T, TEvent>> Append<TEvent>(IAggregate<T> aggregate, TEvent eventData)
+        public Task Append<TEvent>(IAggregate<T> aggregate, TEvent eventData)
             where TEvent : IEventState<T>
         {
             if (!Events.TryGetValue(aggregate.AggregateId, out var eventList))
             {
-                eventList = new List<IAggregateEvent>();
+                eventList = new List<IAggregateEvent<T>>();
                 Events.Add(aggregate.AggregateId, eventList);
             }
 
-            var ev = new AggregateEvent<T, TEvent>(aggregate, Guid.NewGuid().ToString(), eventList.Count, eventData);
+            var ev = new AggregateEvent<T, TEvent>(Guid.NewGuid().ToString(), eventList.Count, eventData);
             eventList.Add(ev);
-            return Task.FromResult<IAggregateEvent<T, TEvent>>(ev);
+            eventData.Apply(aggregate.Root);
+            return Task.CompletedTask;
         }
 
-        public Task<IAggregate<T>> Read(string aggregateId)
+        public async IAsyncEnumerable<IAggregateEvent<T>> Read(string aggregateId)
         {
             if (!Events.TryGetValue(aggregateId, out var eventList))
                 throw new AggregateNotFound(aggregateId);
 
-            var agg = new Aggregrate<T>(aggregateId, new T());
+            await Task.CompletedTask;
 
-
+            foreach (var it in eventList)
+                yield return it;
 
             //     var ev = new AggregateEvent<T, TEvent>(aggregrate, Guid.NewGuid().ToString(), eventList.Count, eventData);
             // eventList.Add(ev);

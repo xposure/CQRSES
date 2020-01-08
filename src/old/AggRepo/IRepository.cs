@@ -6,7 +6,7 @@ namespace AggRepo
     using System.Threading.Tasks;
     using AggCommon;
 
-    public interface IAggregrateRepository<TEntity>
+    public interface IRepository<TEntity>
     //where TEntity : IAggregrate
     {
         //string CollectionName { get; }

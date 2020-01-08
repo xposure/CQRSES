@@ -1,5 +1,6 @@
 namespace AggCommon
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     //I want to move all the event append logic to the IAggragate instead
@@ -13,10 +14,9 @@ namespace AggCommon
     public interface IAggregateStream<T> : IAggregateStream
         where T : new()
     {
-        Task<IAggregateEvent<T, TEvent>> Append<TEvent>(IAggregate<T> aggregate, TEvent eventData)
-            where TEvent : IEventState<T>;
+        Task Append<TEvent>(IAggregate<T> aggregate, TEvent eventData) where TEvent : IEventState<T>;
 
-        Task<IAggregate<T>> Read(string aggregateId);
+        IAsyncEnumerable<IAggregateEvent<T>> Read(string aggregateId);
     }
 
     // public interface IAggregrateEvents

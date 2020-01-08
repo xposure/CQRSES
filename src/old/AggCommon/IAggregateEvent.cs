@@ -21,17 +21,15 @@ namespace AggCommon
         //void Apply();
     }
 
-    // public interface IAggregrateEvent<TData> : IAggregrateEvent
-    // {
-    //     TData Data { get; }
-    //     //void Apply(TAggregate aggregreate);
-    // }
+    public interface IAggregateEvent<TAggregate> : IAggregateEvent
+    {
+        void Apply(TAggregate aggregreate);
+    }
 
-    public interface IAggregateEvent<TAggregate, TData> : IAggregateEvent
+    public interface IAggregateEvent<TAggregate, TData> : IAggregateEvent<TAggregate>
         //where TAggregate : IAggregrate
         where TData : IEventState<TAggregate>
     {
         TData Data { get; }
-        void Apply(TAggregate aggregreate);
     }
 }

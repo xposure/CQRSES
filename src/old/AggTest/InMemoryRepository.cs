@@ -8,8 +8,9 @@ namespace AggTest
     using AggCommon;
     using AggRepo;
 
-    public class InMemoryAggregrateRepository<TEntity> : IAggregrateRepository<TEntity>
-    //where TEntity : Aggregrate<TEntity>
+    public class InMemoryRepository<TEntity> : IRepository<TEntity>
+        where TEntity : new()
+        //where TEntity : Aggregrate<TEntity>
     {
 
         //public string CollectionName { get; }
@@ -20,10 +21,15 @@ namespace AggTest
         // {
         //     CollectionName = typeof(TEntity).Name;
         // }
+        private IAggregateStream<TEntity> _stream;
+        public InMemoryRepository(IAggregateStream<TEntity> stream)
+        {
+            _stream = stream;
+        }
 
         public Task<IAggregate<TEntity>> AddAsync(TEntity entity)
         {
-            var aggregate = new Aggregrate<TEntity>(Guid.NewGuid().ToString(), entity);
+            var aggregate = new Aggregrate<TEntity>(Guid.NewGuid().ToString(), entity, _stream);
             _entities.Add(aggregate);
             return Task.FromResult<IAggregate<TEntity>>(aggregate);
         }

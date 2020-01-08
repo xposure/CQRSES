@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace AggCommon
 {
     public interface IAggregate
@@ -11,6 +13,9 @@ namespace AggCommon
     public interface IAggregate<T> : IAggregate
     {
         T Root { get; }
+
+        Task Append(params IEventState<T>[] eventData);
+        Task Snapshot();
 
         //void Apply(IAggregrateEvent<T> ev);
     }
