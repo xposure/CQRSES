@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using EventStore.ClientAPI;
-
 namespace MindMatrix.EventSourcing
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using EventStore.ClientAPI;
+    using MediatR;
+
     public interface IEventStream<TAggregate>
     {
         long Version { get; }
-
 
         Task<IAggregateEvent<TAggregate, TEvent>> Append<TEvent>(TEvent data) where TEvent : IEvent<TAggregate>;
         IAsyncEnumerable<IAggregateEvent<TAggregate>> Read(int start = 0);
@@ -17,6 +17,7 @@ namespace MindMatrix.EventSourcing
 
     public class EventStream<TAggregate> : IEventStream<TAggregate>
     {
+        private readonly IMediator _mediator;
         private readonly IEventStoreConnection _eventStore;
         private readonly string _aggregateId;
 
@@ -24,8 +25,9 @@ namespace MindMatrix.EventSourcing
 
         public long Version => _version;
 
-        public EventStream(IEventStoreConnection eventStore, string aggregateId)
+        public EventStream(IMediator mediator, IEventStoreConnection eventStore, string aggregateId)
         {
+            _mediator = mediator;
             _eventStore = eventStore;
             _aggregateId = aggregateId;
         }
@@ -40,6 +42,8 @@ namespace MindMatrix.EventSourcing
 
             var result = await _eventStore.AppendToStreamAsync(_aggregateId, _version, new EventData(eid, type.FullName, true, bytes, null));
             _version = result.NextExpectedVersion;
+
+            await _mediator.Publish(data);
 
             return new AggregateEvent<TAggregate, TEvent>(eid.ToString(), version, data);
         }
