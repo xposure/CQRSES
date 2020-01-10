@@ -21,6 +21,8 @@ namespace MindMatrix.EventSourcing
         {
             return new EventStream<TAggregate>(_eventStore, aggregateId);
         }
+
+
     }
 
     public class MemoryEventStreamFactory<TAggregate> : IEventStreamFactory<TAggregate>
