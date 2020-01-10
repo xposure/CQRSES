@@ -1,55 +1,46 @@
+using System;
+using MediatR;
+
 namespace MindMatrix.EventSourcing
 {
 
-    public interface IAggregateEvent<TAggregate> : IEvent<TAggregate>
+    public interface IAggregateEvent
     {
         string Id { get; }
         long Version { get; }
-
     }
 
-    public interface IAggregateEvent<TAggregate, TData> : IAggregateEvent<TAggregate>
-        where TData : IEvent<TAggregate>
+    // public interface IAggregateEvent<TAggregate> : IAggregateEvent
+    // {
+    // }
+
+    public interface IAggregateEvent<TData> : IAggregateEvent
     {
         TData Data { get; }
     }
 
-    public class AggregateEvent<TAggregate> : IAggregateEvent<TAggregate, IEvent<TAggregate>>
+    public interface IAggregateEvent<TAggregate, TData> : IAggregateEvent<TData>, INotification
+    {
+        IAggregate<TAggregate> Aggregate { get; }
+    }
+
+
+
+    public class AggregateEvent<TAggregate, TData> : IAggregateEvent<TAggregate, TData>
     {
         public string Id { get; }
         public long Version { get; }
-        public IEvent<TAggregate> Data { get; }
 
-        public AggregateEvent(string id, long version, IEvent<TAggregate> data)
+        public IAggregate<TAggregate> Aggregate { get; }
+        public TData Data { get; }
+
+        public AggregateEvent(IAggregate<TAggregate> aggregate, string id, long version, TData data)
         {
+            Aggregate = aggregate;
             Id = id;
             Version = version;
             Data = data;
         }
-
-        public void Apply(TAggregate aggregate)
-        {
-            Data.Apply(aggregate);
-        }
     }
 
-    public class AggregateEvent<TAggregate, TEvent> : IAggregateEvent<TAggregate, TEvent>
-        where TEvent : IEvent<TAggregate>
-    {
-        public string Id { get; }
-        public long Version { get; }
-        public TEvent Data { get; }
-
-        public AggregateEvent(string id, long version, TEvent data)
-        {
-            Id = id;
-            Version = version;
-            Data = data;
-        }
-
-        public void Apply(TAggregate aggregate)
-        {
-            Data.Apply(aggregate);
-        }
-    }
 }

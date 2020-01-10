@@ -1,8 +1,9 @@
 namespace MindMatrix.EventSourcing.Tests
 {
+    using System.IO;
     using MediatR;
 
-    public class CreateUser : IRequest<User>
+    public class CreateUser : IRequest<IAggregate<User>>
     {
         public string Username { get; }
         public string Email { get; }
@@ -19,13 +20,12 @@ namespace MindMatrix.EventSourcing.Tests
 
     public class CreatedUser : INotification
     {
-        public string Id { get; }
-        public CreateUser CreateUser { get; }
+        public string Id { get; set; }
+        public CreateUser Request { get; set; }
 
-        public CreatedUser(string id, CreateUser user)
+        public CreatedUser()
         {
-            Id = id;
-            CreateUser = user;
         }
     }
+
 }

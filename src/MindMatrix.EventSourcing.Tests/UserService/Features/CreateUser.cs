@@ -1,44 +1,33 @@
 namespace MindMatrix.EventSourcing.Tests
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using MediatR;
     using MindMatrix.EventSourcing;
     using Shouldly;
 
-    public class CreateUserHandler : IRequestHandler<CreateUser, User>
+    public class CreateUserHandler : IRequestHandler<CreateUser, IAggregate<User>>
     {
+        private readonly IAggregateRepository<User> _repository;
 
-        private readonly IMediator mediator;
-        private readonly IEventStreamFactory<User> eventStreamFactory;
-
-        public CreateUserHandler(IMediator mediator, IEventStreamFactory<User> eventStreamFactory)
+        public CreateUserHandler(IMediator mediator, IAggregateRepository<User> repository)
         {
-            this.mediator = mediator;
-            this.eventStreamFactory = eventStreamFactory;
+            _repository = repository;
         }
 
-        public async Task<User> Handle(CreateUser request, CancellationToken cancellationToken)
+        public async Task<IAggregate<User>> Handle(CreateUser request, CancellationToken cancellationToken)
         {
             //create in DB first
-            var user = new User();
-
-            var eventStream = eventStreamFactory.Create(string.Empty);
-
-            eventStream.ShouldNotBeNull();
-            eventStream.Version.ShouldBe(-1);
-
-
-            eventStream.Append(new CreatedUser(string.Empty, request));
-
-
-            await mediator.Publish(new CreatedUser(string.Empty, request));
+            var id = Guid.NewGuid().ToString();
+            var user = await _repository.Get(id);
+            await _repository.Append(user, new CreatedUser() { Id = id, Request = request });
 
             return user;
         }
     }
 
-    public class CreatedUserHandler : INotificationHandler<CreatedUser>
+    public class CreatedUserHandler : INotificationHandler<IAggregateEvent<User, CreatedUser>>
     {
         private readonly IMediator mediator;
 
@@ -47,14 +36,15 @@ namespace MindMatrix.EventSourcing.Tests
             this.mediator = mediator;
         }
 
-        public Task Handle(CreatedUser notification, CancellationToken cancellationToken)
+        public Task Handle(IAggregateEvent<User, CreatedUser> notification, CancellationToken cancellationToken)
         {
-            var user = new User();
-
-            user.Username = notification.CreateUser.Username;
-            user.Email = notification.CreateUser.Email;
-            user.FirstName = notification.CreateUser.FirstName;
-            user.LastName = notification.CreateUser.LastName;
+            var user = notification.Aggregate.Root;
+            var ev = notification.Data;
+            notification.Data.Id.ShouldNotBeNullOrEmpty();
+            user.Username = ev.Request.Username;
+            user.Email = ev.Request.Email;
+            user.FirstName = ev.Request.FirstName;
+            user.LastName = ev.Request.LastName;
             user.Deleted = false;
             return Task.CompletedTask;
         }

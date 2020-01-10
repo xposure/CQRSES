@@ -25,31 +25,37 @@ namespace MindMatrix.EventSourcing
             Converters = new JsonConverter[] { new StringEnumConverter() }
         };
 
-        public static byte[] ToJsonBytes(this object source)
+        public static byte[] ToJsonBytes(object source)
         {
             string instring = JsonConvert.SerializeObject(source, Formatting.Indented, JsonSettings);
             return UTF8NoBom.GetBytes(instring);
         }
 
-        public static string ToJson(this object source)
+        // public static string ToJson(this object source)
+        // {
+        //     string instring = JsonConvert.SerializeObject(source, Formatting.Indented, JsonSettings);
+        //     return instring;
+        // }
+
+        // public static string ToCanonicalJson(this object source)
+        // {
+        //     string instring = JsonConvert.SerializeObject(source);
+        //     return instring;
+        // }
+        public static T ParseJsonT<T>(string json)
         {
-            string instring = JsonConvert.SerializeObject(source, Formatting.Indented, JsonSettings);
-            return instring;
+            var result = (T)JsonConvert.DeserializeObject(json, typeof(T), JsonSettings);
+            return result;
         }
 
-        public static string ToCanonicalJson(this object source)
-        {
-            string instring = JsonConvert.SerializeObject(source);
-            return instring;
-        }
 
-        public static T ParseJson<T>(this string json)
+        public static T ParseJson<T>(string json)
         {
             var result = JsonConvert.DeserializeObject<T>(json, JsonSettings);
             return result;
         }
 
-        public static T ParseJson<T>(this byte[] json)
+        public static T ParseJson<T>(byte[] json)
         {
             var result = JsonConvert.DeserializeObject<T>(UTF8NoBom.GetString(json), JsonSettings);
             return result;
@@ -62,30 +68,30 @@ namespace MindMatrix.EventSourcing
             return result;
         }
 
-        public static object DeserializeObject(JObject value, Type type, JsonSerializerSettings settings)
-        {
-            JsonSerializer jsonSerializer = JsonSerializer.Create(settings);
-            return jsonSerializer.Deserialize(new JTokenReader(value), type);
-        }
+        // public static object DeserializeObject(JObject value, Type type, JsonSerializerSettings settings)
+        // {
+        //     JsonSerializer jsonSerializer = JsonSerializer.Create(settings);
+        //     return jsonSerializer.Deserialize(new JTokenReader(value), type);
+        // }
 
-        public static object DeserializeObject(JObject value, Type type, params JsonConverter[] converters)
-        {
-            var settings = converters == null || converters.Length <= 0
-                ? null
-                : new JsonSerializerSettings { Converters = converters };
-            return DeserializeObject(value, type, settings);
-        }
+        // public static object DeserializeObject(JObject value, Type type, params JsonConverter[] converters)
+        // {
+        //     var settings = converters == null || converters.Length <= 0
+        //         ? null
+        //         : new JsonSerializerSettings { Converters = converters };
+        //     return DeserializeObject(value, type, settings);
+        // }
 
-        public static XmlDocument ToXmlDocument(this JObject value, string deserializeRootElementName,
-            bool writeArrayAttribute)
-        {
-            return (XmlDocument)DeserializeObject(value, typeof(XmlDocument), new JsonConverter[] {
-                new XmlNodeConverter {
-                    DeserializeRootElementName = deserializeRootElementName,
-                    WriteArrayAttribute = writeArrayAttribute
-                }
-            });
-        }
+        // public static XmlDocument ToXmlDocument(this JObject value, string deserializeRootElementName,
+        //     bool writeArrayAttribute)
+        // {
+        //     return (XmlDocument)DeserializeObject(value, typeof(XmlDocument), new JsonConverter[] {
+        //         new XmlNodeConverter {
+        //             DeserializeRootElementName = deserializeRootElementName,
+        //             WriteArrayAttribute = writeArrayAttribute
+        //         }
+        //     });
+        // }
 
         public static bool IsValidJson(this byte[] value)
         {
