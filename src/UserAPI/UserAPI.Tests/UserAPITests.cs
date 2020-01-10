@@ -18,7 +18,7 @@ namespace UserAPI
             {
                 cfg.Scan(scanner =>
                 {
-                    scanner.AssemblyContainingType<UserServiceTests>();
+                    scanner.AssemblyContainingType<UserAPI.Worker>();
                     //scanner.ConnectImplementationsToTypesClosing(typeof(INotification));
                     scanner.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
                     scanner.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
@@ -54,10 +54,6 @@ namespace UserAPI
 
             public IJsonSerializer<T> GetSerializer<T>() => _container.GetInstance<IJsonSerializer<T>>();
         }
-
-
-
-
 
         [Fact]
         public async void ShouldCreateUser()

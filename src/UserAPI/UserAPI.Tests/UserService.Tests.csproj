@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UserAPI.Client\UserAPI.Client.csproj" />
+    <ProjectReference Include="..\UserAPI.Worker\UserAPI.Worker.csproj" />
   </ItemGroup>
 
 </Project>
