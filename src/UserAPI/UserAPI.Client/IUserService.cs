@@ -10,11 +10,11 @@ namespace UserAPI
         Task<IAggregate<User>> Create(CreateUser user, CancellationToken cancellationToken = default);
     }
 
-    public class MediatRUserService : IUserService
+    public class MediatrUserService : IUserService
     {
         private readonly IMediator _mediator;
 
-        public MediatRUserService(IMediator mediator)
+        public MediatrUserService(IMediator mediator)
         {
             _mediator = mediator;
         }

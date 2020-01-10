@@ -30,7 +30,7 @@ namespace UserAPI
                 cfg.For(typeof(IAggregateEventFactory<,>)).Use(typeof(AggregateEventFactory<,>)).Singleton();
                 cfg.For(typeof(IAggregateEventFactoryGenerator<>)).Use(typeof(AggregateEventFactoryGenerator<>));
                 cfg.For(typeof(IAggregateRepository<>)).Use(typeof(MemoryAggregateRepository<>));
-                cfg.For<IUserService>().Use<MediatRUserService>();
+                cfg.For<IUserService>().Use<MediatrUserService>();
                 cfg.For<ServiceFactory>().Use<ServiceFactory>(ctx => ctx.GetInstance);
                 cfg.For<IMediator>().Use<Mediator>();
             });
