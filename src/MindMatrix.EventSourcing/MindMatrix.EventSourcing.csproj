@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EventStore.Client" Version="5.0.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="StructureMap" Version="$(StructureMapVersion)" />
     <PackageReference Include="MediatR" Version="$(MediatRVersion)" />
   </ItemGroup>

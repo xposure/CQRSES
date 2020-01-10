@@ -5,12 +5,30 @@ namespace MindMatrix.EventSourcing
     using System.Threading.Tasks;
     using MediatR;
 
+
+    public class AggreventEvent2
+    {
+        public string Id { get; }
+        public long Version { get; }
+        public string Type { get; }
+        public byte[] Data { get; }
+        public byte[] Metadata { get; }
+    }
+
     public interface IAggregateRepository<TAggregate>
         where TAggregate : new()
     {
-
         Task<IAggregate<TAggregate>> Get(string aggregateId);
         Task Append(IAggregate<TAggregate> aggregate, params INotification[] events);
+
+        //Task Delete(TAggregate aggregate);
+    }
+
+    public interface IAggregateRepository2<TAggregate>
+        where TAggregate : new()
+    {
+        Task<IAggregate<TAggregate>> Get(string aggregateId);
+        Task Append(IAggregate<TAggregate> aggregate, params AggreventEvent2[] events);
 
         //Task Delete(TAggregate aggregate);
     }

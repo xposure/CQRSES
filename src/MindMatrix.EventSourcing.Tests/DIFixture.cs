@@ -34,7 +34,7 @@ namespace MindMatrix.EventSourcing
                 cfg.For<IEventStoreConnection>().Use(EventStoreConnection.Create(new Uri("tcp://admin:changeit@localhost:1113"))).Singleton();
 
 
-                cfg.For(typeof(IEventStreamFactory<>)).Use(typeof(EventStreamFactory<>)).Singleton();
+                //cfg.For(typeof(IEventStreamFactory<>)).Use(typeof(EventStreamFactory<>)).Singleton();
                 //cfg.For<IEventStoreConnection>().Use(EventStoreConnection.Create("tcp://user:password@myserver:11234")).Singleton();
 
                 //cfg.For(typeof(IEventSourceRepository<>)).Use(typeof(MongoESRespository<>));
