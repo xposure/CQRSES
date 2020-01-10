@@ -1,4 +1,4 @@
-namespace MindMatrix.EventSourcing.Tests
+namespace UserAPI.Handlers
 {
     using System;
     using System.Threading;

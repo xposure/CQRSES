@@ -1,4 +1,4 @@
-namespace MindMatrix.EventSourcing.Tests
+namespace UserAPI
 {
     public partial class User
     {

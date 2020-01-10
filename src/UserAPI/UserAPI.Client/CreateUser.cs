@@ -1,7 +1,8 @@
-namespace MindMatrix.EventSourcing.Tests
+namespace UserAPI
 {
     using System.IO;
     using MediatR;
+    using MindMatrix.EventSourcing;
 
     public class CreateUser : IRequest<IAggregate<User>>
     {

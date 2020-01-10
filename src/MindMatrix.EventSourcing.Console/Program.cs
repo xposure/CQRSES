@@ -100,7 +100,6 @@ namespace MindMatrix.EventSourcing
                 }
                 //cfg.For(typeof(IAE<>)).Use(typeof(AE<>));
 
-                Json.DeserializeObject()
             });
 
 
