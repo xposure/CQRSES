@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="EventStore" Version="3.2.0.29" />
     <PackageReference Include="EventStore.Client" Version="5.0.5" />
-    <PackageReference Include="MongoDB.Driver" Version="2.10.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
   </ItemGroup>
 
 </Project>
